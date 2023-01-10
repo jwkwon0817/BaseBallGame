@@ -137,6 +137,19 @@ public class BaseballGame {
 
                             if (replayStr.equalsIgnoreCase("y")) {
                                 System.out.println("\n[ 게임이 다시 시작됩니다. ]\n");
+                                numList = new ArrayList<>(){{
+                                    for (int i = 0; i <= 9; i++) {
+                                        add(i);
+                                    }
+                                }};
+
+                                // Choose numbers
+                                chosenList = new ArrayList<>();
+                                for (int i = 0; i < 3; i++) {
+                                    Collections.shuffle(numList);
+                                    chosenList.add(numList.get(0));
+                                    numList.remove(0); // 0 2 8 9
+                                }
                                 tryCounts = 0;
                                 break;
                             } else if (replayStr.equalsIgnoreCase("n")) {
