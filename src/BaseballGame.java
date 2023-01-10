@@ -17,17 +17,15 @@ public class BaseballGame {
     private static boolean isNum = true;
     private static boolean isInfinity = true;
     private static boolean isStop = false;
-    private static boolean isReplay = true;
 
     // initSetting
     private static String regex;
-    private static String limitTry;
+    private static String limitTry; // 0 1 4 5 7 8 9
 
     // Main method
     public static void main(String[] args) throws IOException  {
         // Create BufferedReader object
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-
         Scanner scanner = new Scanner(System.in);
 
         // Create default ArrayList
@@ -45,8 +43,6 @@ public class BaseballGame {
             numList.remove(0);
         }
 
-
-
         initSetting();
 
         // Judge limitTry
@@ -59,17 +55,16 @@ public class BaseballGame {
 
         sendRules();
 
-        while (!isStop) {
+        // Main game while loop
+        Game: while (!isStop) {
             try {
-                if (!isReplay) {
-                    strikes = 0;
-                }
+                strikes = 0;
                 balls = 0;
                 outs = 0;
                 isInRange = true;
 
                 // Input message
-                System.out.print(">>> ");
+                System.out.print("숫자 >>> ");
                 String userStr = bf.readLine();
 
                 int[] userArr = Stream.of(userStr.split(regex)).mapToInt(Integer::parseInt).toArray();
@@ -119,6 +114,7 @@ public class BaseballGame {
                     }
                 }
 
+
                 if (!isDupl && isInRange && isNum) {
                     // Add tryCounts
                     tryCounts += 1;
@@ -130,25 +126,30 @@ public class BaseballGame {
                     }
 
                     // Game finished
-                    if (strikes == 3 && isReplay) {
+                    if (strikes == 3) {
                         System.out.println("삼진! 정답: " + chosenList);
                         judgeRank();
-                        System.out.print("더 하실건가요? [Y/N] >>> ");
-                        String regameStr = scanner.next();
+                        System.out.println("다시 플레이 하실건가요?\n");
 
-                        if (regameStr.equalsIgnoreCase("y")) {
-                            isStop = false;
-                        } else if(regameStr.equalsIgnoreCase("N")) {
-                            isStop = true;
-                            isReplay = false;
-                        } else {
-                            System.out.print("[Y/N] 중에 입력해주세요!");
-                            isReplay = true;
+                        while (true) {
+                            System.out.print("\n다시 플레이 >>> ");
+                            String replayStr = scanner.nextLine();
+
+                            if (replayStr.equalsIgnoreCase("y")) {
+                                System.out.println("\n[ 게임이 다시 시작됩니다. ]\n");
+                                tryCounts = 0;
+                                break;
+                            } else if (replayStr.equalsIgnoreCase("n")) {
+                                isStop = false;
+                                break Game;
+                            } else {
+                                System.out.println("\n[Y/N] 중에서 입력해주세요.\n");
+                            }
                         }
                     } else if (outs == 3) {
-                        System.out.println("3 아웃!");
+                        System.out.println("3 아웃!\n");
                     } else if (!isDupl){
-                        System.out.println(strikes + " Strike " + balls + " Ball\n");
+                        System.out.println(strikes + " 스트라이크 " + balls + " 볼\n");
                     }
                 }
 
@@ -161,30 +162,30 @@ public class BaseballGame {
                 System.out.println("\n[ 오류 ] 0 ~ 9 사이 숫자를 입력해 주시기 바랍니다.\n");
             } catch (ArrayIndexOutOfBoundsException e) {    // Make player input 3 numbers.
                 System.out.println("\n[ 오류 ] 숫자를 3개 입력해 주시기 바랍니다. (구분: \"" + regex + "\")\n");
-            } catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException ignored) {
             }
         }
 
         System.out.println("\n[ 게임이 종료되었습니다. ]");
     }
 
-    // Judge numbers are in range
+    /** A method that judge the number is in range */
     public static boolean isRange(int num) {
         return (num >= 0) && (num <= 9);
     }
 
-    // Init settings
-    public static void initSetting() { // 2 3 4 6 8 9 0 [ * * 3 ]
+    /** A method that set initial game settings. */
+    public static void initSetting() {
         regex = " "; // split(regex)
         limitTry = ""; // "" == infinity
     }
 
-    // Simple create line method
+    /** A method that create a line */
     public static void createLine() {
         System.out.println("\n--------------------------------------------\n");
     }
 
-    // Judge final ranks
+    /** A method that judge rank when game finished */
     public static void judgeRank() {
         if (tryCounts == 1) {
             rank = "A+";
@@ -202,19 +203,21 @@ public class BaseballGame {
         } else {
             rank = "F";
         }
+        createLine();
         System.out.println("등급: " + rank);
         System.out.println(tryCounts + "번만에 맞췄습니다.");
+        createLine();
     }
 
-    // Send rules to player
+    /** A method that send rules to player */
     public static void sendRules() {
         System.out.println("[ 게임 규칙 ]");
         System.out.println("1. 숫자는 \"" + regex + "\"로 구분한다.");
-        System.out.println("2. 숫자가 같고 위치까지 같으면 STRIKE");
-        System.out.println("3. 숫자가 같지만 위치는 다르다면 BALL");
-        System.out.println("4. 숫자가 다르다면 OUT");
+        System.out.println("2. 숫자가 같고 위치까지 같으면 스트라이크");
+        System.out.println("3. 숫자가 같지만 위치는 다르다면 볼");
+        System.out.println("4. 숫자가 다르다면 아웃");
         createLine();
-        System.out.println("현재 regex: \"" + regex + "\"");
+        System.out.println("현재 구분자: \"" + regex + "\"");
         createLine();
     }
 }
